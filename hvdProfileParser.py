@@ -59,13 +59,14 @@ def update_data_layers(data_layers):
 def sort_data_layers_by_total_time(data_layers):
     return sorted(data_layers, key=lambda data_layer: data_layer.total_avg_time, reverse=True)
 
-
 def sort_data_layers_by_negotiate_time(data_layers):
     return sorted(data_layers, key=lambda data_layer: data_layer.negotiate_avg_time, reverse=True)
 
 def sort_data_layers_by_main_time(data_layers):
     return sorted(data_layers, key=lambda data_layer: data_layer.main_avg_time, reverse=True)
 
+def sort_data_layers_by_name(data_layers):
+    return sorted(data_layers, key=lambda data_layer: data_layer.name, reverse=True)
 
 def ProfileParser(events, operator_name=None):
     if operator_name is not None:
@@ -171,7 +172,8 @@ def PrintAll(data_layers):
 def add_args(parser):
     parser.add_argument("--file", help="profile json file", default="profile.json")
     parser.add_argument("--operator-name", help="analysize the specify operator", default=None)
-    parser.add_argument("--topK", help="select number of k data layers which speed most time", default=5)
+    parser.add_argument("--topK", help="select number of k data layers which speed most time", default=10)
+    parser.add_argument("--printAll", help="print all data layer summary", default=0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="horovod profile file analysis",
@@ -183,15 +185,21 @@ if __name__ == "__main__":
 
     data_layers = ProfileParser(events, args.operator_name)
     update_data_layers(data_layers)
+
+    topk = args.topK
     # sort by total time
     data_layers = sort_data_layers_by_total_time(data_layers)
-    print("the number of k data layers which speed most time sorted by total time:")
-    PrintAll(data_layers[:args.topK])
+    print("top %d data layers which speed most time sorted by total time:" % topk)
+    PrintAll(data_layers[:topk])
     # sort by negotiate time
     data_layers = sort_data_layers_by_negotiate_time(data_layers)
-    print("the number of k data layers which speed most time sorted by negotiate time:")
-    PrintAll(data_layers[:args.topK])
+    print("top %d data layers which speed most time sorted by negotiate time:" % topk)
+    PrintAll(data_layers[:topk])
     # sort by main time
     data_layers = sort_data_layers_by_main_time(data_layers)
-    print("the number of k data layers which speed most time sorted by main time:")
-    PrintAll(data_layers[:args.topK])
+    print("top %d data layers which speed most time sorted by main time:" % topk)
+    PrintAll(data_layers[:topk])
+
+    if args.printAll == 1:
+        print("all data layers infos:")
+        PrintAll(data_layers)
