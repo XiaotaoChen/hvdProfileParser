@@ -147,14 +147,13 @@ def OPSummaryStr(data_layer_name, op_infos):
             str2 += (" + %s") % (round(tmp_avg, 3))
             str3 += ("/%s") % (round(100.0 * tmp_avg / total_time, 2))
 
-    str_summary = ("[%-70s] \ttotal time: %-20s ms/calls \tpercent: %-20s (%%) \t"
+    str_summary = ("[%-70s] \ttotal time: %-30s ms/calls \tpercent: %-20s (%%) \t"
                    "cnt: %d calls") % (str1, str2, str3, cnt)
 
     return str_summary
 
 
 def PrintAll(data_layers):
-    print("horovod performation's summary according to timeline info.")
     for data_layer in data_layers:
         data_shape = [int(i) for i in data_layer.shape.strip("[]").split(",")]
         data_size = 1
@@ -186,10 +185,13 @@ if __name__ == "__main__":
     update_data_layers(data_layers)
     # sort by total time
     data_layers = sort_data_layers_by_total_time(data_layers)
-    PrintAll(data_layers[:5])
+    print("the number of k data layers which speed most time sorted by total time:")
+    PrintAll(data_layers[:args.topK])
     # sort by negotiate time
     data_layers = sort_data_layers_by_negotiate_time(data_layers)
-    PrintAll(data_layers[:5])
+    print("the number of k data layers which speed most time sorted by negotiate time:")
+    PrintAll(data_layers[:args.topK])
     # sort by main time
     data_layers = sort_data_layers_by_main_time(data_layers)
-    PrintAll(data_layers[:5])
+    print("the number of k data layers which speed most time sorted by main time:")
+    PrintAll(data_layers[:args.topK])
